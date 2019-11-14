@@ -1,0 +1,42 @@
+NTC - NES text compression
+==========================
+
+This is a compression format intended for English text, as short strings.
+It uses second-order probability combined with canonical Huffman.
+
+It creates a small index (1-2kb) that would be kept in a common bank, then
+each string is compressed separately and may be stored where-ever convenient.
+
+Compressing this program's license text (COPYING, 35147 bytes), treating each
+non-empty line as a string, creates an index of 1034 bytes. The index
+is included in the following table's compressed size.
+
+Zlib and LZ4 compress the entire file as a blob, not per-string; they
+are included for scale. Per-string they would likely increase the total
+size.
+
+[options="header",cols="header,2*",width="50%"]
+|======================================
+|Algo	| Compressed size	| %
+|NTC	| 17925			| 52
+|LZ4HC	| 15521			| 44
+|Zlib	| 12144			| 35
+|======================================
+
+There are two versions of the NES decompressor, generic and direct.
+The generic one takes the index by pointer, but is slower and uses
+more RAM. It's useful e.g. if you have multiple languages. The
+direct one uses absolute addressing to a single index.
+
+[options="header",cols="header,3*",width="50%"]
+|============================================================
+|Version	| Code size	| RAM	| Avg cycles per byte
+|Generic	| 426		| 8	| 785
+|Direct		| 296		| 0	| 735
+|============================================================
+
+This method won't do well with binary data; for that consider other
+algorithms.
+
+If you're interested in using this in commercial setups, please
+contact Mega Cat Studios.
