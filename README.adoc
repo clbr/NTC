@@ -15,7 +15,7 @@ Zlib and LZ4 compress the entire file as a blob, not per-string; they
 are included for scale. Per-string they would likely increase the total
 size.
 
-[options="header",cols="header,2*",width="50%"]
+[options="header",width="50%"]
 |======================================
 |Algo	| Compressed size	| %
 |NTC	| 17925			| 52
@@ -28,7 +28,7 @@ The generic one takes the index by pointer, but is slower and uses
 more RAM. It's useful e.g. if you have multiple languages. The
 direct one uses absolute addressing to a single index.
 
-[options="header",cols="header,3*",width="50%"]
+[options="header",width="50%"]
 |============================================================
 |Version	| Code size	| RAM	| Avg cycles per byte
 |Generic	| 426		| 8	| 785
