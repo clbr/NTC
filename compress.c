@@ -86,6 +86,33 @@ static void canonicalize(u8 lens[256], const struct node_t *n, const u32 bits) {
 	}
 }
 
+static struct node_t *deep_parent, *shallow;
+static u8 deepdepth, shallowdepth;
+
+static void checkdepth2(const struct node_t *n, const struct node_t *parent, const u8 depth) {
+	if (!n->left && !n->right) {
+		if (depth < 16 && depth > shallowdepth) {
+			shallow = (struct node_t *) n;
+			shallowdepth = depth;
+		} else if (depth > 16 && depth > deepdepth) {
+			deep_parent = (struct node_t *) parent;
+			deepdepth = depth;
+		}
+	} else {
+		checkdepth2(n->left, n, depth + 1);
+		checkdepth2(n->right, n, depth + 1);
+	}
+}
+
+static u8 checkdepth(const struct node_t *n) {
+	deep_parent = shallow = NULL;
+	deepdepth = shallowdepth = 0;
+
+	checkdepth2(n, NULL, 0);
+
+	return deepdepth;
+}
+
 static void huffman(const u32 totalprob[256], const u32 len, u8 canonical[256]) {
 	u32 i, qlen = 0, freenode = len;
 	struct node_t *queue[len];
@@ -130,6 +157,13 @@ static void huffman(const u32 totalprob[256], const u32 len, u8 canonical[256]) 
 	}
 
 //	printtree(nodes, queue[0], 0, 0, 0);
+
+	// Too deep?
+	while (checkdepth(queue[0]) > 16) {
+		shallow->left = deep_parent->left;
+		shallow->right = deep_parent->right;
+		deep_parent->left = deep_parent->right = NULL;
+	}
 
 	// Convert it to canonical format
 	canonicalize(canonical, queue[0], 0);
